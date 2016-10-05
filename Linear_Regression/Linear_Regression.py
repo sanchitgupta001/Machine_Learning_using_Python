@@ -5,6 +5,7 @@ from sklearn import preprocessing, cross_validation, svm
 from sklearn.linear_model import LinearRegression   
 import matplotlib.pyplot as plt
 from matplotlib import style
+import pickle
 
 style.use('ggplot')
 
@@ -48,14 +49,30 @@ y = np.array(df['label'])
 # Split arrays into random train and test subsets
 X_train, X_test, y_train, y_test = cross_validation.train_test_split(X, y, test_size=0.2) # test_size here denotes we want to use only 20% data as the testing data 
 
-clf = LinearRegression() # Initialize the classifier 
+# clf = LinearRegression() # Initialize the classifier 
 # Here, we can use 'n_jobs' as an argument and it denotes number of threads. 
 # The number of jobs to use for the computation. If -1 all CPUs are used. 
 # This will only provide speedup for n_targets > 1 and sufficient large problems. By default n_jobs = 1
 
 # clf = svm.SVR() This can also be used as a classifier. SVR is Support Vector regression. In this case, its accuracy is less than LinearRegression()
 
-clf.fit(X_train, y_train) # Fit or train the classifier X: Features, y: Label 
+# clf.fit(X_train, y_train) # Fit or train the classifier X: Features, y: Label 
+
+# Pickle : Serialization of any Python Object
+# In our case pickle is a classifier
+# Using this we save the state of the classifier. In our case, its better to save the
+# state when the classifier has been trained as training takes much time. So, we need not train the classifier for
+# a particular algorithm again and again. Our dataset is small. So, no significant change
+# would be noticed, but is very useful when it comes to training a large dataset.
+
+# with open("Path/Linear_Regression/linear_regression.pickle","wb") as f: # Here, we need to specify the whole path where we want the pickle to be stored on our system
+#    pickle.dump(clf, f)
+    
+# Unpickle : Deserialize the pickle
+pickle_in = open("linear_regression.pickle","rb")    
+clf = pickle.load(pickle_in)
+
+
 accuracy = clf.score(X_test,y_test)
 
 # print(accuracy)
