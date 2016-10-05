@@ -44,7 +44,6 @@ X_lately = X[-forecast_out:] # To be used for prediction (Last forecast_out numb
 df.dropna(inplace=True) 
 # Labels
 y = np.array(df['label'])
-y = np.array(df['label'])
 
 # Split arrays into random train and test subsets
 X_train, X_test, y_train, y_test = cross_validation.train_test_split(X, y, test_size=0.2) # test_size here denotes we want to use only 20% data as the testing data 
@@ -64,7 +63,7 @@ accuracy = clf.score(X_test,y_test)
 # Predicting for last forecast_out number of elements 
 forecast_set = clf.predict(X_lately)
 
-print(forecast_set, accuracy, forecast_out)
+# print(forecast_set, accuracy, forecast_out)
 
 df['Forecast'] = np.nan
 
@@ -73,18 +72,29 @@ df['Forecast'] = np.nan
 # ix usually tries to behave like loc but falls back to behaving like iloc if the label is not in the index.
 
 last_date = df.iloc[-1].name
-last_unix = last_date.timestamp()
-one_day = 86400
-next_unix = last_unix + one_day
+# print("last_date : ", last_date, "\n")
+last_unix = last_date.timestamp() # timestamp of the last date
+one_day = 86400 # Number of seconds in a day
+next_unix = last_unix + one_day # timestamp of the next date
+# print("next_unix : ", next_unix, "\n")
 
 for i in forecast_set:
-    next_date = datetime.datetime.fromtimestamp(next_unix)
+    next_date = datetime.datetime.fromtimestamp(next_unix) # return datetime in the format like : 2016-09-19 00:00:00
+    # print("next_date : ", next_date, "\n")
+    # print("i : ", i, "\n")
     next_unix += one_day
+    # print("Extra : ",[np.nan for _ in range(len(df.columns)-1)]+[i])
+    # Output like : [nan, nan, nan, nan, nan, 806.8631540250276]
+    
+    # Fills all columns of a row with nan except the last column for the next dates
     df.loc[next_date] = [np.nan for _ in range(len(df.columns)-1)] + [i]
+    # print("Output : ",df.loc[next_date],"\n")
+    # Here, Date is the index of the dataset provided. So, we are filling dataframe according to the datestamp
 
+    
 df['Adj. Close'].plot()
 df['Forecast'].plot()
-plt.legend(loc=4)
+plt.legend(loc=4) # loc = 4 signifies legend(special type of text) to be printed at lower right
 plt.xlabel('Date')
 plt.ylabel('Price')
 plt.show()
