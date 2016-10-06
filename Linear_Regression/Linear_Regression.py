@@ -26,7 +26,7 @@ df = df[['Adj. Close', 'HL_PCT', 'PCT_change','Adj. Volume']]
 forecast_col = 'Adj. Close'
 df.fillna(-99999,inplace=True) # Replacing NaN values with some value
 
-forecast_out = int(math.ceil(0.01*len(df))) # Number of columns to be shifted up to make future predictions
+forecast_out = int(math.ceil(0.1*len(df))) # Number of columns to be shifted up to make future predictions
 # print(forecast_out) Currently it is 31
 
 df['label'] = df[forecast_col].shift(-forecast_out) # To shift 'forecast_out' number of columns up
@@ -39,8 +39,8 @@ X = np.array(df.drop(['label'],1)) # 1 denotes we are deleting a column and not 
 # Center to the mean and component wise scale to unit variance.
 X = preprocessing.scale(X)
 
-X = X[:-forecast_out] # Everything except the last forecast_out number of elements
 X_lately = X[-forecast_out:] # To be used for prediction (Last forecast_out number of elements)
+X = X[:-forecast_out] # Everything except the last forecast_out number of elements
 
 df.dropna(inplace=True) 
 # Labels
