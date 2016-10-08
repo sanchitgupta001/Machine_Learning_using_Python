@@ -26,27 +26,31 @@ class Support_Vector_Machine:
         for yi in self.data:
             for featureset in self.data[yi]:
                 for feature in featureset:
-                    all_data.append(feature)
+                    all_data.append(feature) # Simple list of individual features
+                    
+        # print("all_data : ",all_data)            
                     
         self.max_feature_value = max(all_data)
         self.min_feature_value = min(all_data) 
+        # print("Max : ",self.max_feature_value,"\n")
+        # print("Min : ",self.min_feature_value,"\n")
         all_data = None
     
         step_sizes = [self.max_feature_value*0.1,
                       self.max_feature_value*0.01,
                       # point of expenses:
                       self.max_feature_value*0.001]  
-        
+        # print("Step : ",step_sizes)
         # extremely exoensive              
         b_range_multiple = 5 
         # we don't need to take as small of steps
-        # with b as we do w
+        # with b as we do with w
         b_multiple = 5
         latest_optimum = self.max_feature_value*10
-        
+        # print("latest_optimum : ",latest_optimum)
         for step in step_sizes:
             w = np.array([latest_optimum,latest_optimum])
-            
+            # print("w : ",w)
             # we can do this because its a convex problem
             optimized = False
             while not optimized:
@@ -55,29 +59,34 @@ class Support_Vector_Machine:
                                    step*b_multiple):
                     for transformation in transforms:
                         w_t = w*transformation
+                        # print("w_t",w_t)
                         found_option = True
                         # weakest link in the SVM fundamentally
                         # SMO attempts to fix this a bit
                         # yi(xi.w + b) >= 1
                         for i in self.data:
                             for xi in self.data[i]:
-                                yi = i
-                                if not yi*(np.dot(w_t,xi)+b) >= 1:
+                                yi = i # Class
+                                if not yi*(np.dot(w_t,xi)+b) >= 1: # yi((w.x) + b) always should be >=1
                                     found_option = False
                                     
                         if found_option:
-                            opt_dict[np.linalg.norm(w_t)] = [w_t,b]
+                            opt_dict[np.linalg.norm(w_t)] = [w_t,b] # ||w|| : [w,b]        
                 if w[0] < 0:
                     optimized = True
                     print('optimized a step...')
                 else:
                     w = w - step
-            norms = sorted([n for n in opt_dict])
+            norms = sorted([n for n in opt_dict]) # Minimum norm (because we want to minimze ||w||)
+            # print("norms[0] : ",norms[0])
+            # print("opt_dict : ",opt_dict)
             opt_choice = opt_dict[norms[0]]
+            # print("opt_choice : ",opt_choice)
            
             self.w = opt_choice[0]
             self.b = opt_choice[1]
             latest_optimum = opt_choice[0][0] + step*2
+            # print("Opt_choice[0][0] : ",opt_choice[0][0])
                       
              
     def predict(self, features):
@@ -96,7 +105,7 @@ class Support_Vector_Machine:
         # nsv = -1
         # decision_boundary = 0
         def hyperplane(x,w,b,v):
-            return (-w[0]*x-b+v)/w[1]
+            return (-w[0]*x-b+v)/w[1] # Remember
         
         datarange = (self.min_feature_value*0.9,self.max_feature_value*1.1)
         hyp_x_min = datarange[0]
@@ -106,19 +115,19 @@ class Support_Vector_Machine:
         # positive support vector hyperplane
         psv1 = hyperplane(hyp_x_min, self.w, self.b, 1)
         psv2 = hyperplane(hyp_x_max, self.w, self.b, 1)
-        self.ax.plot([hyp_x_min,hyp_x_max],[psv1,psv2],'k')
+        self.ax.plot([hyp_x_min,hyp_x_max],[psv1,psv2],'k') # Plot pairs : [hyp_x_min,psv1],[hyp_x_max,psv2]
         
         # (w.x + b) = -1
         # negative support vector hyperplane
         nsv1 = hyperplane(hyp_x_min, self.w, self.b, -1)
         nsv2 = hyperplane(hyp_x_max, self.w, self.b, -1)
-        self.ax.plot([hyp_x_min,hyp_x_max],[nsv1,nsv2],'k')
+        self.ax.plot([hyp_x_min,hyp_x_max],[nsv1,nsv2],'k') # Plot pairs : [hyp_x_min,nsv1],[hyp_x_max,nsv2]
         
         # (w.x + b) = 0
         # decision boundary hyperplane
         db1 = hyperplane(hyp_x_min, self.w, self.b, 0)
         db2 = hyperplane(hyp_x_max, self.w, self.b, 0)
-        self.ax.plot([hyp_x_min,hyp_x_max],[db1,db2],'y')
+        self.ax.plot([hyp_x_min,hyp_x_max],[db1,db2],'y') # # Plot pairs : [hyp_x_min,db1],[hyp_x_max,db2]
         
         plt.show()
 
@@ -131,4 +140,18 @@ data_dict = {-1:np.array([[1,7],
 
 svm = Support_Vector_Machine()
 svm.fit(data_dict)
-svm.visualize()
+
+predict_us = [  [0,10],
+                [1,3],
+                [3,4],
+                [3,5],
+                [5,5],
+                [5,6],
+                [6,-5],
+                [5,8]]
+                
+for p in predict_us:
+    svm.predict(p)
+
+svm.visualize()                
+                
